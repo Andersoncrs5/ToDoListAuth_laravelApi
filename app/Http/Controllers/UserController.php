@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Valids;
 use App\Models\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -12,7 +13,8 @@ class UserController extends Controller
 {
     public function register(Request $r)
     {
-        try {
+        try 
+        {
             DB::beginTransaction();
 
             $data = $r->only(['name', 'email', 'password']);
@@ -24,21 +26,15 @@ class UserController extends Controller
             $user = $this->findUserByEmail($data['email']);
             $this->isUserNull($user);
 
-            session()->put('id', $user->id);
-            session()->put('active', true);
-            session()->put('email', $user->email);
+            $this->setSession($user);
 
             DB::commit();
             return response()->json('User created', 201);
-        } catch (\Throwable $th) {
+        } 
+        catch (\Throwable $th) 
+        {
             DB::rollBack();
-            throw new HttpResponseException(response()->json(
-                [
-                    'error' => 'Internal Server Error',
-                    'description' => $th
-                ],
-                500
-            ));
+            Valids::ResponseException("Error register user", $th, 500);
         }
     }
 
@@ -59,18 +55,13 @@ class UserController extends Controller
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
 
-            session()->put('id', $user->id);
-            session()->put('active', true);
-            session()->put('email', $user->email);
+            $this->setSession($user);
 
             return response()->json('Logged in successfully', 200);
         } 
         catch (\Throwable $th) 
         {
-            throw new HttpResponseException(response()->json(
-                ['error' => 'Internal Server Error'],
-                500
-            ));
+            Valids::ResponseException("Error the log in system", $th, 500);
         }
     }
 
@@ -83,10 +74,7 @@ class UserController extends Controller
         } 
         catch (\Throwable $th) 
         {
-            throw new HttpResponseException(response()->json(
-                ['error' => 'Internal Server Error'],
-                500
-            ));
+            Valids::ResponseException("Error make logout tasks", $th, 500);
         }
     }
 
@@ -101,10 +89,7 @@ class UserController extends Controller
         } 
         catch (\Throwable $th) 
         {
-            throw new HttpResponseException(response()->json(
-                ['error' => 'Internal Server Error'],
-                500
-            ));
+            Valids::ResponseException("Error get user", $th, 500);
         }
     }
 
@@ -136,10 +121,7 @@ class UserController extends Controller
         catch (\Throwable $th) 
         {
             DB::rollBack();
-            throw new HttpResponseException(response()->json(
-                ['error' => 'Internal Server Error'],
-                500
-            ));
+            Valids::ResponseException("Error the update user", $th, 500);
         }
     }
 
@@ -162,10 +144,7 @@ class UserController extends Controller
         catch (\Throwable $th) 
         {
             DB::rollBack();
-            throw new HttpResponseException(response()->json(
-                ['error' => 'Internal Server Error'],
-                500
-            ));
+            Valids::ResponseException("Error to delete user", $th, 500);
         }
     }
 
@@ -189,6 +168,27 @@ class UserController extends Controller
                 ['error' => 'User not found'],
                 404
             ));
+        }
+    }
+
+    private function setSession(User $user)
+    {
+        try
+        {
+            if (!$user) {
+                throw new HttpResponseException(response()->json(
+                    ['error' => 'User is required'],
+                    404
+                ));
+            }
+    
+            session()->put('id', $user->id);
+            session()->put('active', true);
+            session()->put('email', $user->email);
+        }
+        catch (\Throwable $th) 
+        {
+            return response()->json($th, 500);
         }
     }
 }
