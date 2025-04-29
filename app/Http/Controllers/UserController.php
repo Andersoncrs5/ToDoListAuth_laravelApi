@@ -45,6 +45,7 @@ class UserController extends Controller
             $data = $r->only(['email', 'password']);
 
             $user = $this->findUserByEmail($data['email']);
+
             if (!$user) 
             {
                 return response()->json(['error' => 'Invalid credentials'], 401);
@@ -188,7 +189,7 @@ class UserController extends Controller
         }
         catch (\Throwable $th) 
         {
-            return response()->json($th, 500);
+            Valids::ResponseException("Error set session", $th, 500);
         }
     }
 }
