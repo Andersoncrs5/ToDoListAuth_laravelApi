@@ -100,14 +100,11 @@ class UserController extends Controller
         {
             DB::beginTransaction();
 
-            $data = $r->only(['name', 'email', 'password']);
+            $data = $r->only(['name', 'password']);
             $user = User::find(session('id'));
             $this->isUserNull($user);
 
-            if (isset($data['email'])) 
-            {
-                $data['email'] = trim(strtolower($data['email']));
-            }
+            $data['email'] = session("email");
 
             if (isset($data['password'])) 
             {

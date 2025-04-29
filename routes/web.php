@@ -26,7 +26,7 @@ Route::prefix('api/task')->controller(TaskController::class)->group(function () 
     Route::middleware(OnAuth::class)->group(function () {
         Route::get('getAllTasksOfUser', 'getAllTasksOfUser')->name('getAllTasksOfUser');
         Route::post('createTask', 'createTask')->name('createTask');
-        Route::post('updateTask/{id}', 'updateTask')->name('updateTask');
+        Route::put('updateTask/{id}', 'updateTask')->name('updateTask');
         Route::delete('deleteTask/{id}', 'deleteTask')->name('deleteTask');
         Route::get('changeStatus/{id}', 'changeStatus')->name('changeStatus');
     });

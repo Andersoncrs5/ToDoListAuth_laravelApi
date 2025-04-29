@@ -39,7 +39,7 @@ class Valids
 
     public static function ResponseException(
             $message = "Internal server error",
-            $description = "No description" ,
+            $description = "No description",
             $status = 500
         )
     {
